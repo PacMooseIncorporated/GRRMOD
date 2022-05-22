@@ -6,7 +6,7 @@
 #include <grrmod.h>
 
 #include <stdlib.h>
-#include <wiiuse/wpad.h>
+#include <libgctools.h>
 
 // Image file
 #include "Impact_9_png.h"
@@ -56,6 +56,17 @@ static CH channel3 = {0, 0, 0, MIN_WIDTH};
 static CH channel4 = {0, 0, 0, MIN_WIDTH};
 static float calc_size(u8 voice, CH* channel);
 
+// Callback
+static void return_to_loader (void) {
+    return_to_gclink("fat:/gclink.dol");
+  	void (*reload)() = (void(*)()) 0x80001800;
+  	reload ();
+}
+
+static void reset_cb(u32 irq, void* ctx) {
+  	return_to_loader();
+}
+
 
 int main(int argc, char **argv) {
     float a = 0.0f;
@@ -82,6 +93,9 @@ int main(int argc, char **argv) {
                             {(u8 *)music_xm, music_xm_size} };
     const u8 LastIndex = sizeof(PlayList) / sizeof(*PlayList) - 1;
 
+    SYS_SetResetCallback(reset_cb);
+    atexit(return_to_loader);
+
     GRRLIB_Init();
     GRRLIB_texImg *tex_Font = GRRLIB_LoadTexture(Impact_9_png);
     GRRLIB_InitTileSet(tex_Font, 10, 16, 32);
@@ -90,8 +104,7 @@ int main(int argc, char **argv) {
 
     GRRMOD_SetMOD(PlayList[0].Mem, PlayList[0].Size);
 
-    WPAD_Init();
-    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC);
+    PAD_Init();
 
     GRRLIB_Settings.antialias = true;
     GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
@@ -99,29 +112,29 @@ int main(int argc, char **argv) {
     // Loop forever
     while(1) {
         GRRLIB_2dMode();
-        WPAD_ScanPads();  // Scan the Wiimotes
+        PAD_ScanPads();  // Scan the Wiimotes
 
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_START) {
             break;
         }
-        if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_PLUS) {
+        if (PAD_ButtonsHeld(0) & PAD_BUTTON_UP) {
             Volume++;
             GRRMOD_SetVolume(Volume, Volume);
         }
-        if (WPAD_ButtonsHeld(0) & WPAD_BUTTON_MINUS) {
+        if (PAD_ButtonsHeld(0) & PAD_BUTTON_DOWN) {
             Volume--;
             GRRMOD_SetVolume(Volume, Volume);
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_A) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_B) {
             GRRMOD_Pause();
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_1) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_A) {
             GRRMOD_Start();
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_2) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_X) {
             GRRMOD_Stop();
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_LEFT) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_LEFT) {
             SongNum--;
             if(SongNum < 0) {
                 SongNum = 0;
@@ -130,7 +143,7 @@ int main(int argc, char **argv) {
             GRRMOD_SetMOD(PlayList[SongNum].Mem, PlayList[SongNum].Size);
             GRRMOD_Start();
         }
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_RIGHT) {
+        if (PAD_ButtonsDown(0) & PAD_BUTTON_RIGHT) {
             SongNum++;
             if(SongNum > LastIndex) {
                 SongNum = LastIndex;
@@ -168,7 +181,7 @@ int main(int argc, char **argv) {
         GRRLIB_2dMode();
         GRRLIB_Printf(10, 10, tex_Font, 0xFFFFFFFF, 1, "Song: %s", GRRMOD_GetSongTitle());
         GRRLIB_Printf(10, 26, tex_Font, 0xFFFFFFFF, 1, "Type: %s", GRRMOD_GetModType());
-        GRRLIB_Printf(10, 42, tex_Font, 0xFFFFFFFF, 1, "1 = Play; 2 = Stop; A = Pause; Left = Prev; Right = Next");
+        GRRLIB_Printf(10, 42, tex_Font, 0xFFFFFFFF, 1, "A:Play - X:Stop - B: Pause - L/R: Prev/Next - U/D: Volume");
 
 #ifdef _GRRMOD_DEBUG
         GRRLIB_Printf(10, 58, tex_Font, 0xFFFFFFFF, 1, "Mixing Time: %04d", GRRMOD_MixingTime());
@@ -179,6 +192,8 @@ int main(int argc, char **argv) {
 
     GRRMOD_End();
     GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
+
+    return_to_gclink("fat:/gclink.dol");
 
     exit(0);  // Use exit() to exit a program, do not use 'return' from main()
 }

@@ -3,17 +3,15 @@
 #---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
-ifeq ($(strip $(DEVKITPRO)),)
-$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro")
-endif
-
 ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
 endif
 
-include $(DEVKITPPC)/base_rules
-LIBOGC_INC	:=	$(DEVKITPRO)/libogc/include
-LIBOGC_LIB	:=	$(DEVKITPRO)/libogc/lib/wii
+include $(DEVKITPRO)/libogc2/gamecube_rules
+
+# include $(DEVKITPPC)/base_rules
+LIBOGC_INC	:=	$(DEVKITPRO)/libogc2/include
+LIBOGC_LIB	:=	$(DEVKITPRO)/libogc2/lib/cube
 
 INSTALL_INC	:=	$(DEVKITPRO)/portlibs/ppc/include
 INSTALL_LIB	:=	$(DEVKITPRO)/portlibs/ppc/lib
@@ -22,7 +20,7 @@ INSTALL_LIB	:=	$(DEVKITPRO)/portlibs/ppc/lib
 # options for building the library, set to yes to include, anything else to exclude
 #---------------------------------------------------------------------------------
 USE_MOD		:=	yes
-USE_MP3		:=	yes
+USE_MP3		:=	no
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output

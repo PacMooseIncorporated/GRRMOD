@@ -22,7 +22,7 @@
 
   $Id$
 
-  Driver for Nintendo Wii
+  Driver for Nintendo GC
 
 ==============================================================================*/
 
@@ -36,18 +36,19 @@
 #include "config.h"
 #endif
 
-#include <gctypes.h>
+#include <ogcsys.h>
+#include <stdbool.h>
 #include "mikmod_internals.h"
 
 static int buffersize=0;
 static int *audiobuffer=NULL;
 
-static BOOL WII_IsThere(void)
+static BOOL GC_IsThere(void)
 {
-	return TRUE;
+	return true;
 }
 
-static int WII_Init(void)
+static int GC_Init(void)
 {
 	if(audiobuffer==NULL)
 	{
@@ -56,7 +57,7 @@ static int WII_Init(void)
 	return VC_Init();
 }
 
-static void WII_CommandLine(const CHAR *cmdline)
+static void GC_CommandLine(const CHAR *cmdline)
 {
 	CHAR *ptr=MD_GetAtom("buffer",cmdline,FALSE);
 	if (ptr) {
@@ -70,7 +71,7 @@ static void WII_CommandLine(const CHAR *cmdline)
 	}
 }
 
-static void	WII_Update(void)
+static void	GC_Update(void)
 {
 	SBYTE* buffer = (SBYTE*)(*audiobuffer);
 	if(buffer!=NULL)
@@ -79,27 +80,27 @@ static void	WII_Update(void)
 	}
 }
 
-MIKMODAPI MDRIVER drv_wii={
+MIKMODAPI MDRIVER drv_gc={
 	NULL,
-	"Wii",
-	"Wii Driver v1.0",
+	"GC",
+	"GC Driver v1.0",
 	0,255,
-	"wii",
+	"GC",
 	"buffer:r:0:Audio buffer pointer\n"
 		"size:r:5760:Audio buffer size\n",
-	WII_CommandLine,
-	WII_IsThere,
+	GC_CommandLine,
+	GC_IsThere,
 	VC_SampleLoad,
 	VC_SampleUnload,
 	VC_SampleSpace,
 	VC_SampleLength,
-	WII_Init,
+	GC_Init,
 	VC_Exit,
 	NULL,
 	VC_SetNumVoices,
 	VC_PlayStart,
 	VC_PlayStop,
-	WII_Update,
+	GC_Update,
 	NULL,
 	VC_VoiceSetVolume,
 	VC_VoiceGetVolume,

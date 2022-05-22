@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include <string.h>
 
 // This is normally in the mikmod.h file of the MikMod project
-MIKMODAPI extern struct MDRIVER drv_wii; /* Wii driver. */
+MIKMODAPI extern struct MDRIVER drv_gc; /* gc driver. */
 
 typedef struct _GRRMOD_DATA {
     char *ModType;    /**< A string representing the MOD type. */
@@ -68,7 +68,7 @@ void GRRMOD_MOD_Register(GRRMOD_FuntionsList *RegFunc) {
  * @see GRRMOD_MOD_End
  */
 s8 GRRMOD_MOD_Init(bool stereo) {
-    MikMod_RegisterDriver(&drv_wii);
+    MikMod_RegisterDriver(&drv_gc);
     MikMod_RegisterAllLoaders();
     md_device = 1; // Only one device is used
 
@@ -78,7 +78,7 @@ s8 GRRMOD_MOD_Init(bool stereo) {
               DMODE_SOFT_SNDFX;
 
     if(stereo == true) {
-        md_mode |= DMODE_STEREO; //this causes some modules (s3m mostly) to play back incorrectly on Wii
+        md_mode |= DMODE_STEREO; //this causes some modules (s3m mostly) to play back incorrectly on gc
     }
 
     char CommandLine[35] = {};
